@@ -33,6 +33,7 @@ export default function Navbar() {
           <a href="#services" className="hover:text-orange-500 transition-colors">Services</a>
           <a href="#about" className="hover:text-orange-500 transition-colors">About</a>
           <a href="#faq" className="hover:text-orange-500 transition-colors">FAQ</a>
+          <Link href="/calendar" className="hover:text-orange-500 transition-colors">Calendar</Link>
           <a
             href="#enroll"
             className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full font-bold transition-colors"
@@ -64,6 +65,7 @@ export default function Navbar() {
           <a href="#services" onClick={() => setMenuOpen(false)} className="hover:text-orange-500">Services</a>
           <a href="#about" onClick={() => setMenuOpen(false)} className="hover:text-orange-500">About</a>
           <a href="#faq" onClick={() => setMenuOpen(false)} className="hover:text-orange-500">FAQ</a>
+          <Link href="/calendar" onClick={() => setMenuOpen(false)} className="hover:text-orange-500">Calendar</Link>
           <a href={`tel:${site.phone}`} className="text-gray-600">{site.phone}</a>
           <a
             href="#enroll"
