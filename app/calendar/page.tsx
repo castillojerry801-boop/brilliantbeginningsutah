@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import Link from 'next/link';
 import Navbar from '@/app/components/sections/Navbar';
 import Footer from '@/app/components/sections/Footer';
 import { getHolidaysForYear, dateKey } from '@/lib/holidays';
@@ -41,19 +42,22 @@ export default function CalendarPage() {
     let cancelled = false;
     async function load() {
       setLoading(true);
-      const supabase = getSupabase();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-      const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
-      const { data } = await supabase
-        .from('calendar_events')
-        .select('*')
-        .gte('date', start)
-        .lte('date', end)
-        .order('date');
-      if (!cancelled) {
-        setEvents(data || []);
-        setLoading(false);
+      try {
+        const supabase = getSupabase();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+        const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`;
+        const { data } = await supabase
+          .from('calendar_events')
+          .select('*')
+          .gte('date', start)
+          .lte('date', end)
+          .order('date');
+        if (!cancelled) setEvents((data || []) as CalendarEvent[]);
+      } catch {
+        // show empty calendar on error
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
     load();
@@ -256,9 +260,17 @@ export default function CalendarPage() {
                 <span>Today</span>
               </div>
             </div>
-            <p className="text-xs text-gray-400 font-medium">
-              Questions? Call <a href="tel:8015137750" className="text-orange-500 font-bold hover:underline">(801) 513-7750</a>
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="text-xs text-gray-400 font-medium">
+                Questions? Call <a href="tel:8015137750" className="text-orange-500 font-bold hover:underline">(801) 513-7750</a>
+              </p>
+              <Link
+                href="/admin/login"
+                className="text-[10px] text-gray-300 hover:text-gray-400 font-medium transition-colors border border-gray-200 rounded px-2 py-1"
+              >
+                Admin Login
+              </Link>
+            </div>
           </div>
         </div>
       </main>
