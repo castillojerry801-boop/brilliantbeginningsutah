@@ -266,7 +266,7 @@ export default function CalendarPage() {
               </p>
               <Link
                 href="/admin/login"
-                className="text-[10px] text-gray-300 hover:text-gray-400 font-medium transition-colors border border-gray-200 rounded px-2 py-1"
+                className="text-xs text-gray-500 hover:text-orange-500 font-semibold transition-colors border border-gray-300 hover:border-orange-400 rounded-lg px-3 py-1.5"
               >
                 Admin Login
               </Link>
