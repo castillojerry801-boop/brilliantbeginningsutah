@@ -14,13 +14,16 @@ function getSupabase() {
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleLogin(e: React.FormEvent) {
+  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // Read directly from the form so Safari autofill works correctly
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+
     setError('');
     setLoading(true);
     const supabase = getSupabase();
@@ -47,9 +50,7 @@ export default function AdminLoginPage() {
             <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
             <input
               type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
+              name="email"
               autoComplete="email"
               placeholder="admin@example.com"
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
@@ -60,9 +61,7 @@ export default function AdminLoginPage() {
             <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
             <input
               type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
+              name="password"
               autoComplete="current-password"
               placeholder="••••••••"
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
