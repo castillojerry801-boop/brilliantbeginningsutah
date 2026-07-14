@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link';
@@ -16,13 +16,17 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Read directly from the form so Safari autofill works correctly
-    const form = e.currentTarget;
-    const email = (form.elements.namedItem('email') as HTMLInputElement).value;
-    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    // Read directly from DOM refs — captures autofill values that don't trigger onChange
+    const email = emailRef.current?.value?.trim() ?? '';
+    const password = passwordRef.current?.value ?? '';
+
+    if (!email) { setError('Please enter your email.'); return; }
+    if (!password) { setError('Please enter your password.'); return; }
 
     setError('');
     setLoading(true);
@@ -60,9 +64,11 @@ export default function AdminLoginPage() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Email</label>
             <input
-              type="email"
+              ref={emailRef}
+              type="text"
               name="email"
               autoComplete="email"
+              inputMode="email"
               placeholder="admin@example.com"
               className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />
@@ -71,6 +77,7 @@ export default function AdminLoginPage() {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">Password</label>
             <input
+              ref={passwordRef}
               type="password"
               name="password"
               autoComplete="current-password"
