@@ -26,13 +26,24 @@ export default function AdminLoginPage() {
 
     setError('');
     setLoading(true);
-    const supabase = getSupabase();
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) {
-      setError(authError.message);
+    try {
+      const supabase = getSupabase();
+      const timeout = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Request timed out — please try again.')), 10000)
+      );
+      const { error: authError } = await Promise.race([
+        supabase.auth.signInWithPassword({ email, password }),
+        timeout,
+      ]);
+      if (authError) {
+        setError(authError.message);
+      } else {
+        router.push('/admin');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+    } finally {
       setLoading(false);
-    } else {
-      router.push('/admin');
     }
   }
 
