@@ -10,7 +10,7 @@ export default function ServiceArea() {
             Serving Your Community
           </h2>
           <p className="text-gray-500 max-w-lg mx-auto">
-            Based in Clinton, UT — conveniently located for families throughout the north Davis County area.
+            Based in Clinton, UT — conveniently located for families throughout North Davis County and Weber County.
           </p>
         </div>
 
