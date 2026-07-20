@@ -74,17 +74,23 @@ export default function Footer() {
             <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
             <p>In-home childcare in Clinton, UT · Serving Davis County families</p>
           </div>
-          <div className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity">
-            <span className="text-gray-500">Powered by</span>
-            <Image
-              src="/cg-logo.jpeg"
-              alt="Common Ground Workshop"
-              width={28}
-              height={28}
-              className="rounded-full invert"
-            />
-            <span className="text-gray-400 font-semibold">Common Ground Workshop</span>
-          </div>
+          <a
+            href="https://cg-workshop.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 opacity-70 hover:opacity-100 transition-opacity group"
+          >
+            <span className="block overflow-hidden rounded-full flex-shrink-0" style={{ width: 46, height: 46 }}>
+              <Image
+                src="/cg-logo.jpeg"
+                alt="Common Ground Workshop"
+                width={46}
+                height={46}
+                className="scale-[1.14] brightness-[1.8]"
+              />
+            </span>
+            <span className="text-gray-400 font-semibold group-hover:text-white transition-colors">Common Ground Workshop</span>
+          </a>
         </div>
       </div>
     </footer>
