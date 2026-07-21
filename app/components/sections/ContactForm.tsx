@@ -1,12 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { Turnstile } from '@marsidev/react-turnstile';
 import { site } from '@/data/site';
 
 type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 export default function ContactForm() {
   const [state, setState] = useState<FormState>('idle');
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [form, setForm] = useState({
     parentName: '',
     childName: '',
@@ -15,6 +17,7 @@ export default function ContactForm() {
     email: '',
     startDate: '',
     message: '',
+    website: '', // honeypot — must stay empty
   });
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
@@ -23,16 +26,18 @@ export default function ContactForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!turnstileToken) return;
     setState('loading');
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, turnstileToken }),
       });
       if (!res.ok) throw new Error('Request failed');
       setState('success');
-      setForm({ parentName: '', childName: '', childAge: '', phone: '', email: '', startDate: '', message: '' });
+      setForm({ parentName: '', childName: '', childAge: '', phone: '', email: '', startDate: '', message: '', website: '' });
+      setTurnstileToken(null);
     } catch {
       setState('error');
     }
@@ -72,6 +77,20 @@ export default function ContactForm() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Honeypot — bots fill this, humans don't see it */}
+              <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}>
+                <label htmlFor="website">Website</label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={form.website}
+                  onChange={handleChange}
+                />
+              </div>
+
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">
@@ -177,6 +196,14 @@ export default function ContactForm() {
                 />
               </div>
 
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onSuccess={setTurnstileToken}
+                onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileToken(null)}
+                options={{ theme: 'light' }}
+              />
+
               {state === 'error' && (
                 <p className="text-red-500 text-sm font-semibold">
                   Something went wrong. Please call us directly at {site.phone}.
@@ -185,7 +212,7 @@ export default function ContactForm() {
 
               <button
                 type="submit"
-                disabled={state === 'loading'}
+                disabled={state === 'loading' || !turnstileToken}
                 className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-extrabold text-lg py-4 rounded-2xl transition-colors shadow-md"
               >
                 {state === 'loading' ? '⏳ Sending...' : '🌟 Send My Request'}

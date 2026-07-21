@@ -2,6 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { createClient } from '@supabase/supabase-js';
 
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      secret: process.env.TURNSTILE_SECRET_KEY,
+      response: token,
+      remoteip: ip,
+    }),
+  });
+  const data = await res.json() as { success: boolean };
+  return data.success === true;
+}
+
 export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const supabase = createClient(
@@ -10,10 +24,25 @@ export async function POST(req: NextRequest) {
   );
   try {
     const body = await req.json();
-    const { parentName, childName, childAge, phone, email, startDate, message } = body;
+    const { parentName, childName, childAge, phone, email, startDate, message, website, turnstileToken } = body;
+
+    // Honeypot: bots fill this field, humans never see it
+    if (website) {
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
 
     if (!parentName || !childName || !childAge || !phone || !email) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Turnstile verification
+    if (!turnstileToken) {
+      return NextResponse.json({ error: 'Bot verification required' }, { status: 400 });
+    }
+    const ip = req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for') ?? '';
+    const isHuman = await verifyTurnstile(turnstileToken, ip);
+    if (!isHuman) {
+      return NextResponse.json({ error: 'Bot verification failed' }, { status: 400 });
     }
 
     // Save to Supabase
