@@ -38,7 +38,7 @@ export default function Hero() {
 
         {/* Trust pills */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">
-          {['✅ Licensed Provider', '🏥 CPR Certified', '🍎 Meals Included', '⏰ Open 5 AM'].map((t) => (
+          {['🏥 CPR Certified', '🍎 Meals Included', '⏰ Open 5 AM'].map((t) => (
             <span key={t} className="bg-white/80 text-gray-700 text-sm font-semibold px-3 py-1 rounded-full shadow-sm">
               {t}
             </span>
